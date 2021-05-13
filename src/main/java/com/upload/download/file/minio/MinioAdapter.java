@@ -1,7 +1,9 @@
 package com.upload.download.file.minio;
 import io.minio.MinioClient;
+import io.minio.Result;
 import io.minio.errors.*;
 import io.minio.messages.Bucket;
+import io.minio.messages.Item;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +36,7 @@ public class MinioAdapter {
         }
     }
 
-    public void uploadFile(String name, byte[] content) throws RegionConflictException, InvalidBucketNameException, InsufficientDataException, XmlPullParserException, ErrorResponseException, NoSuchAlgorithmException, IOException, NoResponseException, InvalidKeyException, InternalException {
+    public void uploadFile(String name, byte[] content, String bucketName) throws RegionConflictException, InvalidBucketNameException, InsufficientDataException, XmlPullParserException, ErrorResponseException, NoSuchAlgorithmException, IOException, NoResponseException, InvalidKeyException, InternalException {
 
         if(!minioClient.bucketExists(bucketName)){
             minioClient.makeBucket(bucketName);
@@ -67,5 +69,17 @@ public class MinioAdapter {
 
     @PostConstruct
     public void init() {
+    }
+
+    public Iterable<Result<Item>> getObjects(String bucketName) {
+        try {
+            return minioClient.listObjects(bucketName);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public void removeObject(String bucketName, String objectName) throws InvalidArgumentException, InvalidBucketNameException, InsufficientDataException, XmlPullParserException, ErrorResponseException, NoSuchAlgorithmException, IOException, NoResponseException, InvalidKeyException, InternalException {
+        minioClient.removeObject(bucketName, objectName);
     }
 }
