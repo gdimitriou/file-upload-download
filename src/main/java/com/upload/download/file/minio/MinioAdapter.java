@@ -22,9 +22,6 @@ public class MinioAdapter {
     @Autowired
     MinioClient minioClient;
 
-    @Value("${minio.bucket.name}")
-    String bucketName;
-
     @Value("${minio.folder.name}")
     String baseFolder;
 
@@ -54,7 +51,7 @@ public class MinioAdapter {
         }
     }
 
-    public byte[] getFile(String key) {
+    public byte[] getFile(String key, String bucketName) {
         try {
             InputStream obj = minioClient.getObject(bucketName, baseFolder + "/" + key);
 

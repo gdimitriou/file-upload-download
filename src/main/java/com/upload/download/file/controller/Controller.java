@@ -84,15 +84,18 @@ public class Controller {
     }
 
     @GetMapping(path = "/download")
-    public ResponseEntity<ByteArrayResource> uploadFile(@RequestParam(value = "file") String file) throws IOException {
-        byte[] data = minioAdapter.getFile(file);
+    public ResponseEntity<ByteArrayResource> downloadFile(
+            @RequestParam(value = "file") String fileName,
+            @RequestParam(value = "bucketName") String bucketName) throws IOException {
+
+        byte[] data = minioAdapter.getFile(fileName, bucketName);
         ByteArrayResource resource = new ByteArrayResource(data);
 
         return ResponseEntity
                 .ok()
                 .contentLength(data.length)
                 .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + file + "\"")
+                .header("Content-disposition", "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
 
     }
