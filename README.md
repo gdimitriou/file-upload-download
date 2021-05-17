@@ -1,2 +1,2 @@
 # file-upload-download
-This is a file upload and download mechanism using Minio Object Store
+This is a spring boot microservice that performs read, write, update and delete operations in MInIO object storage system.
