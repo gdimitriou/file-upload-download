@@ -1,0 +1,15 @@
+version: '3'
+services:
+  file-upload-download:
+    restart: on-failure
+    build: .
+    ports:
+      - "8000:8000"
+  minio:
+    image: minio/minio
+    command: minio server /data
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9000:9000"
