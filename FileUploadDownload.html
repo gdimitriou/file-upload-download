@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Object Storage Browser</title>
+    <script src = "download.min.js"></script>
+    <script type="text/javascript">
+
+        window.addEventListener('load',function(event){
+
+            document.getElementById('findBucketsButton').addEventListener('click',function(event){
+                fetchBuckets().then(function (buckets){
+                    printBuckets(buckets)
+                });
+            });
+
+            document.getElementById('listObjectsButton').addEventListener('click',function(event){
+                fetchObjectsPerBucket().then(function (objects){
+                    printObjects(objects);
+                });
+            });
+
+            document.getElementById('deleteObjectButton').addEventListener('click',function(event){
+                deleteObjectFromBucket().then(function (){
+                });
+            });
+
+            document.getElementById('addObjectButton').addEventListener('click',function(event){
+                addObjectToBucket().then(function (){
+                });
+            });
+
+            document.getElementById('downloadObjectButton').addEventListener('click',function(event){
+                downloadObjectFromBucket().then(function (result){
+                    download(result);
+                    console.log(result);
+                });
+            });
+
+            async function fetchBuckets(){
+                try {
+                    const uri = 'http://localhost:8000/buckets';
+                    const response = await fetch(uri, {
+                        method: 'GET'
+                    });
+                    console.log('GET: ' + uri);
+                    const result = await response.json();
+                    return result;
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            async function fetchObjectsPerBucket(){
+                let bucketName = document.getElementById('bucketNameText').value;
+                try {
+                    const uri = 'http://localhost:8000/objects?bucketName=' + bucketName;
+                    const response = await fetch(uri, {
+                        method: 'GET'
+                    });
+                    console.log('GET: ' + uri);
+                    const result = await response.json();
+                    return result;
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            async function deleteObjectFromBucket(){
+                let bucketName = document.getElementById('bucketNameToDeleteObject').value;
+                let objectName = document.getElementById('objectNameToDelete').value;
+                try {
+                    const uri = 'http://localhost:8000/remove/object?bucketName='+bucketName+'&objectName='+objectName;
+                    const response = await fetch(uri, {
+                        method: 'POST'
+                    });
+                    console.log('POST: ' + uri);
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            async function addObjectToBucket(){
+                let bucketName = document.getElementById('bucketNameToAddObject').value;
+                let data = new FormData();
+                data.append('title', 'example');
+                data.append('file', document.querySelector('#objectToAdd').files[0]);
+                try {
+                    const uri = 'http://localhost:8000/upload?bucketName=' +bucketName;
+                    const response = await fetch(uri, {
+                        method: 'POST',
+                        body: data
+                    });
+                    console.log('POST: ' + uri);
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            async function downloadObjectFromBucket(){
+                let bucketName = document.getElementById('bucketNameToDownloadObject').value;
+                let objectName = document.getElementById('objectToDownload').value;
+                try {
+                    const uri = 'http://localhost:8000/download?file='+objectName+'&bucketName='+ bucketName;
+                    const response = await fetch(uri, {
+                        method: 'GET'
+                    });
+                    console.log('GET: ' + uri);
+                    console.log(response);
+                    const result = await response.blob();
+                    return result;
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            function printBuckets(bucketsList){
+                const divElement = document.getElementById('printBucketsArea');
+                for(let i=divElement.childNodes.length-1; i>=0; i--){
+                    divElement.removeChild(divElement.childNodes[i])
+                }
+                for(let bucketObject in bucketsList){
+                    const bucketName = bucketsList[bucketObject].Name;
+                    const pElement = document.createElement('p');
+                    const textPElement = document.createTextNode(bucketName);
+                    pElement.appendChild(textPElement);
+                    divElement.appendChild(pElement);
+                }
+            };
+
+            function printObjects(objectsList){
+                const divElement = document.getElementById('printObjectsArea');
+                for(let i=divElement.childNodes.length-1; i>=0; i--){
+                    divElement.removeChild(divElement.childNodes[i])
+                }
+                console.log(objectsList);
+                for(let object in objectsList){
+                    const objectName = objectsList[object];
+                    const pElement = document.createElement('p');
+                    const textPElement = document.createTextNode(objectName);
+                    pElement.appendChild(textPElement);
+                    divElement.appendChild(pElement);
+                }
+            };
+
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <a>Fetch Buckets from Object Storage:</a>
+        <input type="button" id="findBucketsButton" value="Fetch Buckets">
+        <div id="printBucketsArea"></div>
+    </div>
+    <div>
+        <a>Enter bucket name to see all the objects:</a>
+        <input type="input" id="bucketNameText" name="bucketNameText">
+        <input type="button" id="listObjectsButton" value="Fetch Objects">
+        <div id="printObjectsArea"></div>
+    </div>
+    <div>
+        <a>Enter object name to delete:</a>
+        <input type="input" id="objectNameToDelete" name="objectNameToDelete">
+        <a>From bucket:</a>
+        <input type="input" id="bucketNameToDeleteObject" name="bucketNameToDeleteObject">
+        <input type="button" id="deleteObjectButton" value="Delete Object">
+    </div>
+    <div>
+        <a>Add new Object:</a>
+        <input type="file" id="objectToAdd" name="objectToAdd">
+        <a>To bucket:</a>
+        <input type="input" id="bucketNameToAddObject" name="bucketNameToAddObject">
+        <input type="button" id="addObjectButton" value="Add Object">
+    </div>
+    <div>
+        <a>Download Object:</a>
+        <input type="input" id="objectToDownload" name="objectToDownload">
+        <a>From bucket:</a>
+        <input type="input" id="bucketNameToDownloadObject" name="bucketNameToDownloadObject">
+        <input type="button" id="downloadObjectButton" value="Download Object">
+    </div>
+
+</body>
+</html>
