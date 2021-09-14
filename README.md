@@ -20,5 +20,6 @@ The microservice comes with its Dockerfile and Docker-Compose.
 2. Import it to your favorite IDE
 3. Download the dependencies
 4. Run the command: "docker-compose up --build"
+5. Open FileUploadDownload.html and enjoy!
 
 
